@@ -18,6 +18,7 @@ class WildlifeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Wildlife Community Locator',
+      showPerformanceOverlay: true,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
