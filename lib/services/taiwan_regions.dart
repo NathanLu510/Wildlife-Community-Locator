@@ -6,15 +6,19 @@ import 'package:latlong2/latlong.dart';
 
 class TaiwanRegions {
   static Future<List<Polygon<String>>> load() async {
+
+    // Access packaged files listed in pubspec.yaml
+    // 'await' is used as reading asset is asynchronous
     final jsonString = await rootBundle.loadString(
       'assets/geo/taiwan_counties.geojson',
     );
 
-    final data = jsonDecode(jsonString) as Map<String, dynamic>;
-    final features = data['features'] as List<dynamic>;
+    final data = jsonDecode(jsonString) as Map<String, dynamic>; // Convert JSON text into Dart objects
+    final features = data['features'] as List<dynamic>; // Extract features 
 
     final polygons = <Polygon<String>>[];
 
+    // Extract each county's name in 'properties' and polygon in 'geometry'
     for (final feature in features) {
       final properties =
           feature['properties'] as Map<String, dynamic>;
@@ -29,16 +33,18 @@ class TaiwanRegions {
               'Unknown region')
           .toString();
 
+      // Extract geometry type and check if its a Polygon or MultiPolygon
+      // Polygons are processed once, MultiPolygons are processed separately
       final type = geometry['type'] as String;
       final coordinates = geometry['coordinates'] as List<dynamic>;
-
+      
       if (type == 'Polygon') {
         _addPolygon(polygons, coordinates, name);
       } else if (type == 'MultiPolygon') {
         for (final polygonCoordinates in coordinates) {
           _addPolygon(
             polygons,
-            polygonCoordinates as List<dynamic>,
+            polygonCoordinates as List<dynamic>, // List of Coordinates for polygons (offshore islands) in same county
             name,
           );
         }
@@ -47,7 +53,8 @@ class TaiwanRegions {
 
     return polygons;
   }
-
+  // Function that converts GeoJSON coordinates into LatLng objects
+ // GeoJSON uses [121.5, 25.0] Flutter uses LatLng(25.0, 121.5)
   static void _addPolygon(
     List<Polygon<String>> result,
     List<dynamic> rings,
@@ -57,13 +64,13 @@ class TaiwanRegions {
       return (ring as List<dynamic>).map((point) {
         final coordinate = point as List<dynamic>;
 
-        return LatLng(
+        return LatLng( // Reverse to fit GeoJSON to Flutter LatLng
           (coordinate[1] as num).toDouble(),
           (coordinate[0] as num).toDouble(),
         );
       }).toList();
     }
-
+    // Rings are ordered sequence of points
     if (rings.isEmpty) return;
 
     final outerRing = convertRing(rings.first);
@@ -74,7 +81,7 @@ class TaiwanRegions {
         .toList();
 
     result.add(
-      Polygon<String>(
+      Polygon<String>( // Creating a polygon with the following properties
         points: outerRing,
         holePointsList: holes.isEmpty ? null : holes,
         color: Colors.transparent,

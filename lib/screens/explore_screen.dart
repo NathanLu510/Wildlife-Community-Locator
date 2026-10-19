@@ -4,6 +4,11 @@ import 'package:latlong2/latlong.dart';
 
 import '../services/taiwan_regions.dart';
 
+import '../data/sample_sightings.dart';
+import '../models/sighting.dart';
+
+import '../widgets/regional_sightings_panel.dart';
+
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
 
@@ -14,8 +19,11 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   static const taiwanCenter = LatLng(23.7, 120.96);
 
+  // Initialising with Future handles asynchronisation
+  // If assets are loading or when they can't be loaded
   late final Future<List<Polygon<String>>> regionsFuture;
 
+  // Stores information hit by pointer interactions
   final LayerHitNotifier<String> hitNotifier = ValueNotifier(null);
 
   String? selectedRegion;
@@ -23,13 +31,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   void initState() {
     super.initState();
-    regionsFuture = TaiwanRegions.load();
+    regionsFuture = TaiwanRegions.load(); // From taiwan_regions.dart
   }
 
   @override
   void dispose() {
     hitNotifier.dispose();
     super.dispose();
+  }
+
+  // Function that filters sightings relative to region
+  List<Sighting> getSightingsForRegion(String region) {
+    return sampleSightings.where((sighting) {
+      return sighting.regionId == region;
+    }).toList();
   }
 
   @override
@@ -54,8 +69,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
         final polygons = snapshot.data!;
 
         final displayedPolygons = polygons.map((polygon) {
-          final isSelected = polygon.hitValue == selectedRegion;
+          final isSelected = polygon.hitValue == selectedRegion; // check if selected polygon name matches region
 
+          // Highlight selected country
           return Polygon<String>(
             points: polygon.points,
             holePointsList: polygon.holePointsList,
@@ -88,7 +104,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       'com.nathanlu.wildlifecommunitylocator',
                 ),
 
-                GestureDetector(
+                GestureDetector( // Detect pointer hits 
                   onTap: () {
                     final hits = hitNotifier.value?.hitValues;
 
@@ -98,7 +114,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       selectedRegion = hits.first;
                     });
                   },
-                  child: PolygonLayer<String>(
+                  child: PolygonLayer<String>( // Render Geographic Polygons
                     polygons: displayedPolygons,
                     hitNotifier: hitNotifier,
                     simplificationTolerance: 0.5,
@@ -113,37 +129,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ],
             ),
 
+            // Display selected county region
             if (selectedRegion != null)
               Positioned(
-                left: 16,
-                right: 16,
-                bottom: 20,
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.place_outlined),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            selectedRegion!,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              selectedRegion = null;
-                            });
-                          },
-                          icon: const Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                  ),
+                left: 12,
+                right: 12,
+                bottom: 12,
+                child: RegionalSightingsPanel(
+                  regionName: selectedRegion!,
+                  sightings: getSightingsForRegion(selectedRegion!),
+                  onClose: () {
+                    setState(() {
+                      selectedRegion = null;
+                    });
+                  },
                 ),
               ),
           ],
