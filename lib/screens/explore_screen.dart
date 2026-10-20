@@ -4,10 +4,13 @@ import 'package:latlong2/latlong.dart';
 
 import '../services/taiwan_regions.dart';
 
-import '../data/sample_sightings.dart';
 import '../models/sighting.dart';
+import '../data/sample_sightings.dart';
 
 import '../widgets/regional_sightings_panel.dart';
+
+import '../widgets/sighting_marker.dart';
+import '../widgets/sighting_details.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -26,7 +29,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
   // Stores information hit by pointer interactions
   final LayerHitNotifier<String> hitNotifier = ValueNotifier(null);
 
+  // Selectable variables
   String? selectedRegion;
+  Sighting? selectedSighting;
+
 
   @override
   void initState() {
@@ -112,6 +118,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
                     setState(() {
                       selectedRegion = hits.first;
+                      selectedSighting = null;
                     });
                   },
                   child: PolygonLayer<String>( // Render Geographic Polygons
@@ -119,6 +126,28 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     hitNotifier: hitNotifier,
                     simplificationTolerance: 0.5,
                   ),
+                ),
+                
+                MarkerLayer(
+                  markers: sampleSightings.map((sighting) {
+                    return Marker(
+                      point: LatLng(
+                        sighting.latitude,
+                        sighting.longitude,
+                      ),
+                      width: 42,
+                      height: 42,
+                      child: SightingMarker(
+                        isSelected: selectedSighting?.id == sighting.id,
+                        onTap: () {
+                          setState(() {
+                            selectedSighting = sighting;
+                            selectedRegion = null;
+                          });
+                        },
+                      ),
+                    );
+                  }).toList(),
                 ),
 
                 const SimpleAttributionWidget(
@@ -141,6 +170,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   onClose: () {
                     setState(() {
                       selectedRegion = null;
+                    });
+                  },
+                ),
+              ),
+            
+            if (selectedSighting != null)
+              Positioned(
+                left: 12,
+                right: 12,
+                bottom: 12,
+                child: SightingDetailsCard(
+                  sighting: selectedSighting!,
+                  onClose: () {
+                    setState(() {
+                      selectedSighting = null;
                     });
                   },
                 ),
