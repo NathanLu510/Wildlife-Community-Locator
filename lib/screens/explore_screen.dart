@@ -22,6 +22,7 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   static const taiwanCenter = LatLng(23.7, 120.96);
 
+  static const cartoKey = String.fromEnvironment('CARTO_API_KEY');
   // Initialising with Future handles asynchronisation
   // If assets are loading or when they can't be loaded
   late final Future<List<Polygon<String>>> regionsFuture;
@@ -53,16 +54,173 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }).toList();
   }
 
+  List<Polygon<String>> _getDisplayedPolygons(
+    List<Polygon<String>> polygons,
+  ) {
+    return polygons.map((polygon) {
+      final isSelected = polygon.hitValue == selectedRegion;
+
+      return Polygon<String>(
+        points: polygon.points,
+        holePointsList: polygon.holePointsList,
+        color: isSelected
+            ? Colors.green.withValues(alpha: 0.25)
+            : Colors.transparent,
+        borderColor: isSelected
+            ? Colors.green.shade900
+            : const Color(0xFF315C46),
+        borderStrokeWidth: isSelected ? 2.5 : 1.3,
+        hitValue: polygon.hitValue,
+      );
+    }).toList();
+  }
+
+  // --------------------------------------------------
+  // USER INTERACTION METHODS
+  // --------------------------------------------------
+
+  // Region Selection
+  void _selectRegion() {
+    final hits = hitNotifier.value?.hitValues;
+
+    if (hits == null || hits.isEmpty) return;
+
+    setState(() {
+      selectedRegion = hits.first;
+      selectedSighting = null;
+    });
+  }
+
+  // Sighting Selection
+  void _selectSighting(Sighting sighting) {
+    setState(() {
+      selectedSighting = sighting;
+      selectedRegion = null;
+    });
+  }
+
+  // Clearing Selection
+  void _clearSelection() {
+    setState(() {
+      selectedRegion = null;
+      selectedSighting = null;
+    });
+  }
+
+  // --------------------------------------------------
+  // MAP BUILDING METHODS
+  // --------------------------------------------------
+
+  Widget _buildTileLayer() {
+    return TileLayer(
+      urlTemplate:
+          'https://basemaps.cartocdn.com/rastertiles/'
+          'voyager_nolabels/{z}/{x}/{y}.png?key=$cartoKey',
+      userAgentPackageName:
+          'com.nathanlu.wildlifecommunitylocator',
+    );
+  }
+
+  Widget _buildPolygonLayer(
+    List<Polygon<String>> polygons,
+  ) {
+    return GestureDetector(
+      onTap: _selectRegion,
+      child: PolygonLayer<String>(
+        polygons: _getDisplayedPolygons(polygons),
+        hitNotifier: hitNotifier,
+        simplificationTolerance: 0.5,
+      ),
+    );
+  }
+
+  Widget _buildMarkerLayer() {
+    return MarkerLayer(
+      markers: sampleSightings.map((sighting) {
+        return Marker(
+          point: LatLng(
+            sighting.latitude,
+            sighting.longitude,
+          ),
+          width: 42,
+          height: 42,
+          child: SightingMarker(
+            isSelected: selectedSighting?.id == sighting.id,
+            onTap: () => _selectSighting(sighting),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildMap(List<Polygon<String>> polygons) {
+    return FlutterMap(
+      options: const MapOptions(
+        initialCenter: taiwanCenter,
+        initialZoom: 7.5,
+        minZoom: 5,
+        maxZoom: 13,
+      ),
+      children: [
+        _buildTileLayer(),
+        _buildPolygonLayer(polygons),
+        _buildMarkerLayer(),
+        const SimpleAttributionWidget(
+          source: Text(
+            '© OpenStreetMap contributors, © CARTO',
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --------------------------------------------------
+  // BUILD INFORMATION PANEL
+  // --------------------------------------------------
+
+  Widget _buildInformationPanel() {
+    if (selectedSighting != null) {
+      return Positioned(
+        left: 12,
+        right: 12,
+        bottom: 12,
+        child: SightingDetailsCard(
+          sighting: selectedSighting!,
+          onClose: _clearSelection,
+        ),
+      );
+    }
+
+    if (selectedRegion != null) {
+      return Positioned(
+        left: 12,
+        right: 12,
+        bottom: 12,
+        child: RegionalSightingsPanel(
+          regionName: selectedRegion!,
+          sightings: getSightingsForRegion(selectedRegion!),
+          onClose: _clearSelection,
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  // --------------------------------------------------
+  // MAIN BUILD METHOD
+  // --------------------------------------------------
+
   @override
   Widget build(BuildContext context) {
-    const cartoKey = String.fromEnvironment('CARTO_API_KEY');
-
     return FutureBuilder<List<Polygon<String>>>(
       future: regionsFuture,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
-            child: Text('Failed to load regions: ${snapshot.error}'),
+            child: Text(
+              'Failed to load regions: ${snapshot.error}',
+            ),
           );
         }
 
@@ -72,127 +230,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
           );
         }
 
-        final polygons = snapshot.data!;
-
-        final displayedPolygons = polygons.map((polygon) {
-          final isSelected = polygon.hitValue == selectedRegion; // check if selected polygon name matches region
-
-          // Highlight selected country
-          return Polygon<String>(
-            points: polygon.points,
-            holePointsList: polygon.holePointsList,
-            color: isSelected
-                ? Colors.green.withValues(alpha: 0.25)
-                : Colors.transparent,
-            borderColor: isSelected
-                ? Colors.green.shade900
-                : const Color(0xFF315C46),
-            borderStrokeWidth: isSelected ? 2.5 : 1.3,
-            hitValue: polygon.hitValue,
-          );
-        }).toList();
-
         return Stack(
           children: [
-            FlutterMap(
-              options: const MapOptions(
-                initialCenter: taiwanCenter,
-                initialZoom: 7.5,
-                minZoom: 5,
-                maxZoom: 13,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      'https://basemaps.cartocdn.com/rastertiles/'
-                      'voyager_nolabels/{z}/{x}/{y}.png?key=$cartoKey',
-                  userAgentPackageName:
-                      'com.nathanlu.wildlifecommunitylocator',
-                ),
-
-                GestureDetector( // Detect pointer hits 
-                  onTap: () {
-                    final hits = hitNotifier.value?.hitValues;
-
-                    if (hits == null || hits.isEmpty) return;
-
-                    setState(() {
-                      selectedRegion = hits.first;
-                      selectedSighting = null;
-                    });
-                  },
-                  child: PolygonLayer<String>( // Render Geographic Polygons
-                    polygons: displayedPolygons,
-                    hitNotifier: hitNotifier,
-                    simplificationTolerance: 0.5,
-                  ),
-                ),
-                
-                // Converts sightings on map into marker and projects coordinates onto the pan
-                // Layered after Polygon layer
-                MarkerLayer(
-                  markers: sampleSightings.map((sighting) {
-                    return Marker(
-                      point: LatLng(
-                        sighting.latitude,
-                        sighting.longitude,
-                      ),
-                      width: 42,
-                      height: 42,
-                      child: SightingMarker(
-                        isSelected: selectedSighting?.id == sighting.id,
-                        onTap: () {
-                          setState(() {
-                            selectedSighting = sighting;
-                            selectedRegion = null;
-                          });
-                        },
-                      ),
-                    );
-                  }).toList(),
-                ),
-
-                const SimpleAttributionWidget(
-                  source: Text(
-                    '© OpenStreetMap contributors, © CARTO',
-                  ),
-                ),
-              ],
-            ),
-
-            // Display selected county region
-            if (selectedRegion != null)
-              Positioned(
-                left: 12,
-                right: 12,
-                bottom: 12,
-                child: RegionalSightingsPanel(
-                  regionName: selectedRegion!,
-                  sightings: getSightingsForRegion(selectedRegion!),
-                  onClose: () {
-                    setState(() {
-                      selectedRegion = null;
-                    });
-                  },
-                ),
-              ),
-            
-            // selectedRegion is cleared when a marker is selected
-            // when this happens regional panel and sighting details card won't appear simultaneously
-            if (selectedSighting != null)
-              Positioned(
-                left: 12,
-                right: 12,
-                bottom: 12,
-                child: SightingDetailsCard(
-                  sighting: selectedSighting!,
-                  onClose: () {
-                    setState(() {
-                      selectedSighting = null;
-                    });
-                  },
-                ),
-              ),
+            _buildMap(snapshot.data!), // Builds tile layer, polygon layer, and marker layer first
+            _buildInformationPanel(), // Manages panel display
           ],
         );
       },
