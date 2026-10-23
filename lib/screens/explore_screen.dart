@@ -128,6 +128,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   ),
                 ),
                 
+                // Converts sightings on map into marker and projects coordinates onto the pan
+                // Layered after Polygon layer
                 MarkerLayer(
                   markers: sampleSightings.map((sighting) {
                     return Marker(
@@ -175,6 +177,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               ),
             
+            // selectedRegion is cleared when a marker is selected
+            // when this happens regional panel and sighting details card won't appear simultaneously
             if (selectedSighting != null)
               Positioned(
                 left: 12,

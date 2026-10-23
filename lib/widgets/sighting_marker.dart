@@ -1,4 +1,5 @@
-// Icon for wildlife sightings
+// Icon for wildlife sighting marker appearance
+// Green paw marker, gesture detector tells screen when marker is 'ontap'
 
 import 'package:flutter/material.dart';
 
