@@ -1,8 +1,8 @@
 // Displays sighting model information as a card
 
 import 'package:flutter/material.dart';
-
 import '../models/sighting.dart';
+import '../services/navigation_service.dart';
 
 class SightingDetailsCard extends StatelessWidget {
   final Sighting sighting;
@@ -55,6 +55,37 @@ class SightingDetailsCard extends StatelessWidget {
             const SizedBox(height: 8),
 
             Text(sighting.description),
+
+            
+            ElevatedButton.icon(
+              onPressed: () async {
+                try {
+                  final launched = await NavigationService.navigateTo(
+                    latitude: sighting.latitude,
+                    longitude: sighting.longitude,
+                  );
+
+                  if (!launched && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Unable to open Google Maps.'),
+                      ),
+                    );
+                  }
+                } catch (error) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Unable to open navigation.'),
+                      ),
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.directions),
+              label: const Text('Locate'),
+            )
+
           ],
         ),
       ),
