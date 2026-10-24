@@ -7,12 +7,14 @@ class RegionalSightingsPanel extends StatelessWidget {
   final String regionName;
   final List<Sighting> sightings;
   final VoidCallback onClose;
+  final ValueChanged<Sighting> onSightSelected;
 
   const RegionalSightingsPanel({
     super.key,
     required this.regionName,
     required this.sightings,
     required this.onClose,
+    required this.onSightSelected
   });
 
   @override
@@ -71,6 +73,11 @@ class RegionalSightingsPanel extends StatelessWidget {
                         '${sighting.description}',
                       ),
                       isThreeLine: true,
+                      trailing: const Icon(Icons.chevron_right),
+
+                      onTap: () {
+                        onSightSelected(sighting);
+                      }
                     );
                   },
                 ),

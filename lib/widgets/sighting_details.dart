@@ -1,4 +1,5 @@
 // Displays sighting model information as a card
+
 import 'package:flutter/material.dart';
 
 import '../models/sighting.dart';

@@ -30,6 +30,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
   // Stores information hit by pointer interactions
   final LayerHitNotifier<String> hitNotifier = ValueNotifier(null);
 
+  final MapController mapController = MapController();
+
   // Selectable variables
   String? selectedRegion;
   Sighting? selectedSighting;
@@ -44,6 +46,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   void dispose() {
     hitNotifier.dispose();
+    mapController.dispose();
     super.dispose();
   }
 
@@ -75,6 +78,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }).toList();
   }
 
+  // Moves map to centre selected observation
+  void _focusOnSighting(Sighting sighting) {
+    _selectSighting(sighting);
+
+    mapController.move(
+      LatLng(sighting.latitude, sighting.longitude),
+      10.0,
+    );
+  }
   // --------------------------------------------------
   // USER INTERACTION METHODS
   // --------------------------------------------------
@@ -155,6 +167,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Widget _buildMap(List<Polygon<String>> polygons) {
     return FlutterMap(
+      mapController: mapController,
+
       options: const MapOptions(
         initialCenter: taiwanCenter,
         initialZoom: 7.5,
@@ -200,6 +214,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           regionName: selectedRegion!,
           sightings: getSightingsForRegion(selectedRegion!),
           onClose: _clearSelection,
+          onSightSelected: _focusOnSighting,
         ),
       );
     }
