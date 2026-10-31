@@ -12,14 +12,28 @@ import '../widgets/regional_sightings_panel.dart';
 import '../widgets/sighting_marker.dart';
 import '../widgets/sighting_details.dart';
 
+import '../models/discovery_filter.dart';
+import '../data/sample_species.dart';
+
+
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key});
+
+  // Recieve filters from discovery
+  final DiscoveryFilter filter; 
+  final VoidCallback? onClearFilter;
+
+  const ExploreScreen({
+    super.key,
+    this.filter = const DiscoveryFilter(),
+    this.onClearFilter,
+  });
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
+
   static const taiwanCenter = LatLng(23.7, 120.96);
 
   static const cartoKey = String.fromEnvironment('CARTO_API_KEY');
@@ -36,6 +50,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
   String? selectedRegion;
   Sighting? selectedSighting;
 
+  List<Sighting> get filteredSightings {
+    return sampleSightings.where((sighting) {
+      return widget.filter.matches(sighting, sampleSpecies);
+    }).toList();
+  }
 
   @override
   void initState() {
@@ -52,7 +71,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   // Function that filters sightings relative to region
   List<Sighting> getSightingsForRegion(String region) {
-    return sampleSightings.where((sighting) {
+    return filteredSightings.where((sighting) {
       return sighting.regionId == region;
     }).toList();
   }
@@ -148,7 +167,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Widget _buildMarkerLayer() {
     return MarkerLayer(
-      markers: sampleSightings.map((sighting) {
+      markers: filteredSightings.map((sighting) {
         return Marker(
           point: LatLng(
             sighting.latitude,
@@ -244,11 +263,23 @@ class _ExploreScreenState extends State<ExploreScreen> {
             child: CircularProgressIndicator(),
           );
         }
-
+        
         return Stack(
           children: [
             _buildMap(snapshot.data!), // Builds tile layer, polygon layer, and marker layer first
             _buildInformationPanel(), // Manages panel display
+                // Display clear button when a filter is active
+            if (widget.filter.category != null ||
+                widget.filter.speciesId != null)
+              Positioned(
+                top: 12,
+                left: 12,
+                child: ActionChip(
+                  avatar: const Icon(Icons.close, size: 18),
+                  label: const Text('Clear filter'),
+                  onPressed: widget.onClearFilter,
+                ),
+              ),
           ],
         );
       },

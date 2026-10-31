@@ -14,12 +14,12 @@ final List<Sighting> sampleSightings = [
   ),
   Sighting(
     id: 'sighting_002',
-    speciesName: 'Taiwan blue magpie',
+    speciesName: '臺灣藍鵲',
     latitude: 25.04,
     longitude: 121.58,
     regionId: '臺北市',
     observedAt: DateTime(2026, 10, 13, 8, 15),
-    description: 'A blue magpie perched on a tree branch.',
+    description: '一隻藍鵲棲息在樹枝上',
   ),
   Sighting(
     id: 'sighting_003',
@@ -32,12 +32,12 @@ final List<Sighting> sampleSightings = [
   ),
   Sighting(
     id: 'sighting_004',
-    speciesName: 'Taiwan barbet',
+    speciesName: '五色鳥',
     latitude: 25.02,
     longitude: 121.55,
     regionId: '臺北市',
     observedAt: DateTime(2026, 10, 15, 10, 20),
-    description: 'A Taiwan barbet calling from a tree.',
+    description: '一隻五色鳥在樹上鳴叫',
   ),
   Sighting(
     id: 'sighting_005',
