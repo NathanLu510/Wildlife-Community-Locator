@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../models/sighting.dart';
 
+import 'sighting_image.dart';
+
 class RegionalSightingsPanel extends StatelessWidget {
   final String regionName;
   final List<Sighting> sightings;
@@ -64,7 +66,15 @@ class RegionalSightingsPanel extends StatelessWidget {
                     final sighting = sightings[index];
 
                     return ListTile(
-                      leading: const Icon(Icons.pets),
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SightingImage(
+                          sighting: sighting,
+                          width: 56,
+                          height: 56,
+                        ),
+                      ),
+                      
                       title: Text(sighting.speciesName),
                       subtitle: Text(
                         '${sighting.observedAt.day}/'

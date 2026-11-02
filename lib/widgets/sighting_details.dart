@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import '../models/sighting.dart';
 import '../services/navigation_service.dart';
 
+import 'sighting_image.dart';
+
+
 class SightingDetailsCard extends StatelessWidget {
   final Sighting sighting;
   final VoidCallback onClose;
@@ -13,7 +16,8 @@ class SightingDetailsCard extends StatelessWidget {
     required this.sighting,
     required this.onClose,
   });
-
+  
+  
   @override
   Widget build(BuildContext context) {
     final date = sighting.observedAt;
@@ -43,7 +47,32 @@ class SightingDetailsCard extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
 
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SightingImage(
+                sighting: sighting,
+                width: double.infinity,
+                height: 180,
+              ),
+            ),
+
+            const SizedBox(height: 4),
+
+            if (sighting.imageAsset != null)
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Illustrative species photograph',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 12),
             const SizedBox(height: 8),
 
             Text('Region: ${sighting.regionId}'),

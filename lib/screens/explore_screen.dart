@@ -22,6 +22,7 @@ class ExploreScreen extends StatefulWidget {
   final DiscoveryFilter filter; 
   final VoidCallback? onClearFilter;
 
+
   const ExploreScreen({
     super.key,
     this.filter = const DiscoveryFilter(),
@@ -50,6 +51,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   String? selectedRegion;
   Sighting? selectedSighting;
 
+  // Getter for filtered SIghtings
   List<Sighting> get filteredSightings {
     return sampleSightings.where((sighting) {
       return widget.filter.matches(sighting, sampleSpecies);

@@ -1,4 +1,4 @@
-
+// Build Discover section UI
 import 'package:flutter/material.dart';
 
 import '../models/species.dart';
@@ -48,7 +48,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       spacing: 8,
       runSpacing: 8,
       children: [
-        ChoiceChip(
+        ChoiceChip( // Category Selection
           label: const Text('All'),
           selected: selectedCategory == null,
           onSelected: (_) => _selectCategory(null),
@@ -88,7 +88,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             ),
             isThreeLine: true,
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
+            onTap: () { // Selecting a species creates the filter for it and passes through onExplore
               widget.onExplore(
                 DiscoveryFilter(speciesId: species.id),
               );
@@ -118,6 +118,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
           const SizedBox(height: 20),
 
+          // Species search field
           TextField(
             decoration: const InputDecoration(
               hintText: 'Search species...',

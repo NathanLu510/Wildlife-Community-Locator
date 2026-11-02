@@ -11,6 +11,7 @@ class DiscoveryFilter {
     this.speciesId,
   });
 
+  // Determines whether a sighting satisfies the filter with an existing entry, species or category
   bool matches(Sighting sighting, List<Species> catalogue) {
     if (category == null && speciesId == null) {
       return true;

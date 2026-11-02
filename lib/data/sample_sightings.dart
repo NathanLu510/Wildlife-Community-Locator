@@ -11,15 +11,17 @@ final List<Sighting> sampleSightings = [
     regionId: '花蓮縣',
     observedAt: DateTime(2026, 10, 12, 9, 30),
     description: 'A macaque observed near a forest trail.',
+    imageAsset: 'assets/images/wildlife/formosan_rock_macaque.jpg',
   ),
   Sighting(
     id: 'sighting_002',
-    speciesName: '臺灣藍鵲',
+    speciesName: 'Taiwan blue magpie',
     latitude: 25.04,
     longitude: 121.58,
     regionId: '臺北市',
     observedAt: DateTime(2026, 10, 13, 8, 15),
     description: '一隻藍鵲棲息在樹枝上',
+    imageAsset: 'assets/images/wildlife/taiwan_blue_magpie.jpg',
   ),
   Sighting(
     id: 'sighting_003',
@@ -29,15 +31,17 @@ final List<Sighting> sampleSightings = [
     regionId: '屏東縣',
     observedAt: DateTime(2026, 10, 14, 16, 45),
     description: 'Several deer observed in a grassy clearing.',
+    imageAsset: 'assets/images/wildlife/formosan_sika_deer.jpg',
   ),
   Sighting(
     id: 'sighting_004',
-    speciesName: '五色鳥',
+    speciesName: 'Taiwan barbet',
     latitude: 25.02,
     longitude: 121.55,
     regionId: '臺北市',
     observedAt: DateTime(2026, 10, 15, 10, 20),
     description: '一隻五色鳥在樹上鳴叫',
+    imageAsset: 'assets/images/wildlife/taiwan_barbet.jpg',
   ),
   Sighting(
     id: 'sighting_005',
@@ -47,6 +51,7 @@ final List<Sighting> sampleSightings = [
     regionId: '花蓮縣',
     observedAt: DateTime(2026, 10, 16, 11, 10),
     description: 'A small group of macaques moving through the forest.',
+    imageAsset: 'assets/images/wildlife/formosan_rock_macaque.jpg',
   ),
   Sighting(
     id: 'sighting_006',
@@ -56,5 +61,6 @@ final List<Sighting> sampleSightings = [
     regionId: '臺南市',
     observedAt: DateTime(2026, 10, 17, 7, 50),
     description: 'A spoonbill feeding in a coastal wetland.',
+    imageAsset: 'assets/images/wildlife/black_faced_spoonbill.jpg',
   ),
 ];

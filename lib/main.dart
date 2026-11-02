@@ -48,6 +48,7 @@ class _MainScreenState extends State<MainScreen> {
 
   int selectedIndex = 0;
 
+  // Store currently selected wildlife filter
   DiscoveryFilter activeFilter = const DiscoveryFilter();
 
   // Called when Discover requests a filtered map

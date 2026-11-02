@@ -11,6 +11,7 @@ class Sighting {
   final DateTime observedAt;
   final String description;
   final String? imageUrl;
+  final String? imageAsset;
   final String? userId;
 
   const Sighting({
@@ -22,6 +23,7 @@ class Sighting {
     required this.observedAt,
     required this.description,
     this.imageUrl,
+    this.imageAsset,
     this.userId,
   });
 }
