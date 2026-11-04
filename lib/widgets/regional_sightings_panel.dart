@@ -5,11 +5,15 @@ import '../models/sighting.dart';
 
 import 'sighting_image.dart';
 
+import '../utils/category_style.dart';
+import '../utils/sighting_category.dart';
+
 class RegionalSightingsPanel extends StatelessWidget {
   final String regionName;
   final List<Sighting> sightings;
   final VoidCallback onClose;
   final ValueChanged<Sighting> onSightSelected;
+
 
   const RegionalSightingsPanel({
     super.key,
@@ -62,10 +66,15 @@ class RegionalSightingsPanel extends StatelessWidget {
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: sightings.length,
+                  
                   itemBuilder: (context, index) {
                     final sighting = sightings[index];
 
+                    // Identify the category of this sighting
+                    final category = getSightingCategory(sighting);
+
                     return ListTile(
+                      // Sighting photograph
                       leading: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: SightingImage(
@@ -74,20 +83,43 @@ class RegionalSightingsPanel extends StatelessWidget {
                           height: 56,
                         ),
                       ),
-                      
-                      title: Text(sighting.speciesName),
+
+                      // Species name with category icon
+                      title: Row(
+                        children: [
+                          if (category != null) ...[
+                            Icon(
+                              CategoryStyle.icon(category),
+                              color: CategoryStyle.color(category),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+
+                          Expanded(
+                            child: Text(
+                              sighting.speciesName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+
                       subtitle: Text(
                         '${sighting.observedAt.day}/'
                         '${sighting.observedAt.month}/'
                         '${sighting.observedAt.year}\n'
                         '${sighting.description}',
                       ),
+
                       isThreeLine: true,
+
                       trailing: const Icon(Icons.chevron_right),
 
                       onTap: () {
                         onSightSelected(sighting);
-                      }
+                      },
                     );
                   },
                 ),

@@ -1,11 +1,15 @@
 // Displays sighting model information as a card
 
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import '../models/sighting.dart';
 import '../services/navigation_service.dart';
 
 import 'sighting_image.dart';
 
+import '../utils/category_style.dart';
+import '../utils/sighting_category.dart';
 
 class SightingDetailsCard extends StatelessWidget {
   final Sighting sighting;
@@ -21,6 +25,7 @@ class SightingDetailsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = sighting.observedAt;
+    final category = getSightingCategory(sighting);
 
     return Card(
       margin: const EdgeInsets.all(12),
@@ -33,17 +38,28 @@ class SightingDetailsCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.pets, color: Colors.green),
-                const SizedBox(width: 10),
+            // Category icon
+                if (category != null) ...[
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor:
+                        CategoryStyle.color(category).withValues(alpha: 0.15),
+                    child: Icon(
+                      CategoryStyle.icon(category),
+                      color: CategoryStyle.color(category),
+                      size: 22,
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+                ],
+
+                // Species name
                 Expanded(
                   child: Text(
                     sighting.speciesName,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                ),
-                IconButton(
-                  onPressed: onClose,
-                  icon: const Icon(Icons.close),
                 ),
               ],
             ),

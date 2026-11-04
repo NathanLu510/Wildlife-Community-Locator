@@ -15,7 +15,6 @@ import '../widgets/sighting_details.dart';
 import '../models/discovery_filter.dart';
 import '../data/sample_species.dart';
 
-
 class ExploreScreen extends StatefulWidget {
 
   // Recieve filters from discovery
@@ -178,6 +177,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           width: 42,
           height: 42,
           child: SightingMarker(
+            sighting: sighting,
             isSelected: selectedSighting?.id == sighting.id,
             onTap: () => _selectSighting(sighting),
           ),
