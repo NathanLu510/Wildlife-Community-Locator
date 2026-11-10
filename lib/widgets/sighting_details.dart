@@ -1,7 +1,4 @@
 // Displays sighting model information as a card
-
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import '../models/sighting.dart';
 import '../services/navigation_service.dart';
@@ -60,6 +57,11 @@ class SightingDetailsCard extends StatelessWidget {
                     sighting.speciesName,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Close sighting details',
+                  onPressed: onClose,
                 ),
               ],
             ),
