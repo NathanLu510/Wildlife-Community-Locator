@@ -1,3 +1,6 @@
+// Responsible for retrieving coordinates of location picker
+// Location is selected using Geolocator package off flutter_map
+// Location permissions requested to use user current location 
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
