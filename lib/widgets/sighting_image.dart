@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../models/sighting.dart';
 
+import 'dart:io';
+
 class SightingImage extends StatelessWidget {
   final Sighting sighting;
   final double? width;
@@ -20,9 +22,21 @@ class SightingImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+    final imagePath = sighting.imagePath;
     final imageAsset = sighting.imageAsset;
     final imageUrl = sighting.imageUrl;
 
+    // User-selected image from camera or gallery
+    if (imagePath != null && imagePath.isNotEmpty) {
+      return Image.file(
+        File(imagePath),
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, _, _) => _buildPlaceholder(),
+      );
+    }
     // Local sample photograph
     if (imageAsset != null && imageAsset.isNotEmpty) {
       return Image.asset(

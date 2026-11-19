@@ -9,7 +9,9 @@ import 'widgets/bottom_navigation.dart';
 
 
 import 'models/discovery_filter.dart';
+import 'models/sighting.dart';
 
+import 'data/sample_sightings.dart';
 
 
 void main() {
@@ -51,6 +53,9 @@ class _MainScreenState extends State<MainScreen> {
   // Store currently selected wildlife filter
   DiscoveryFilter activeFilter = const DiscoveryFilter();
 
+  // Shared list of wildlife sightings
+  late final List<Sighting> sightings = List<Sighting>.of(sampleSightings);
+
   // Called when Discover requests a filtered map
   void _exploreWithFilter(DiscoveryFilter filter) {
     setState(() {
@@ -73,18 +78,34 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  // Add sighting to shared list
+  void _addSighting(Sighting sighting) {
+    setState(() {
+      sightings.add(sighting);
+
+      // Clear filters so the new sighting isn't hidden
+      activeFilter = const DiscoveryFilter();
+
+      // Return to Explore
+      selectedIndex = 0;
+    });
+  }
+
   @override
 
 
   Widget build(BuildContext context) {
-// Build screens using the current state
+    // Build screens using the current state
     final List<Widget> screens = [
       ExploreScreen(
+        sightings: sightings,
         filter: activeFilter,
         onClearFilter: _clearFilter,
       ),
 
-      const AddSightingScreen(),
+      AddSightingScreen(
+        onSightingAdded: _addSighting,
+      ),
 
       DiscoverScreen(
         onExplore: _exploreWithFilter,
@@ -92,7 +113,6 @@ class _MainScreenState extends State<MainScreen> {
 
       const ProfileScreen(),
     ];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Wildlife Community Locator'),

@@ -5,7 +5,7 @@ import 'package:latlong2/latlong.dart';
 import '../services/taiwan_regions.dart';
 
 import '../models/sighting.dart';
-import '../data/sample_sightings.dart';
+
 
 import '../widgets/regional_sightings_panel.dart';
 
@@ -20,12 +20,14 @@ class ExploreScreen extends StatefulWidget {
   // Recieve filters from discovery
   final DiscoveryFilter filter; 
   final VoidCallback? onClearFilter;
+  final List<Sighting> sightings;
 
 
   const ExploreScreen({
     super.key,
-    this.filter = const DiscoveryFilter(),
-    this.onClearFilter,
+    required this.filter,
+    required this.onClearFilter,
+    required this.sightings,
   });
 
   @override
@@ -52,7 +54,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   // Getter for filtered SIghtings
   List<Sighting> get filteredSightings {
-    return sampleSightings.where((sighting) {
+    return widget.sightings.where((sighting) {
       return widget.filter.matches(sighting, sampleSpecies);
     }).toList();
   }
@@ -68,6 +70,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
     hitNotifier.dispose();
     mapController.dispose();
     super.dispose();
+  }
+  // Close sighting after applying filter
+  @override
+  void didUpdateWidget(covariant ExploreScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (selectedSighting != null &&
+        !filteredSightings.any(
+          (sighting) => sighting.id == selectedSighting!.id,
+        )) {
+      selectedSighting = null;
+    }
   }
 
   // Function that filters sightings relative to region
