@@ -91,4 +91,69 @@ class TaiwanRegions {
       ),
     );
   }
+
+  /// Finds the Taiwan county containing the selected location.
+  /// Returns null if the location is outside all loaded regions.
+  static Future<String?> findRegionForLocation(
+    LatLng location,
+  ) async {
+    final polygons = await load();
+
+    for (final polygon in polygons) {
+      // The point must be inside the outer boundary.
+      if (!_isPointInRing(location, polygon.points)) {
+        continue;
+      }
+
+      // Exclude points inside polygon holes.
+      final insideHole = polygon.holePointsList?.any(
+            (hole) => _isPointInRing(location, hole),
+          ) ??
+          false;
+
+      if (!insideHole) {
+        return polygon.hitValue;
+      }
+    }
+
+    return null;
+  }
+
+  /// Ray-casting point-in-polygon test.
+  /// Geo coordinates are treated as x = longitude, y = latitude.
+  static bool _isPointInRing(
+    LatLng point,
+    List<LatLng> ring,
+  ) {
+    if (ring.length < 3) return false; // A ring cannot have less than 3 edges
+
+    final x = point.longitude;
+    final y = point.latitude;
+
+    var inside = false;
+
+    for (var i = 0, j = ring.length - 1; // Iterate through every edge of the ring
+        i < ring.length;
+        j = i++) {
+      final xi = ring[i].longitude;
+      final yi = ring[i].latitude;
+
+      final xj = ring[j].longitude;
+      final yj = ring[j].latitude;
+
+      final intersects =
+          ((yi > y) != (yj > y)) // check if one endpoint is above the point and the other is below it
+          && 
+          (x < 
+          (xj - xi) * (y - yi) / (yj - yi) + xi
+          ); // Check if the intersection between our point and the edge is to the points right
+
+      if (intersects) { // Logically, odd number of right intersections means the point is inside, evens are not
+        inside = !inside;
+      }
+    }
+
+    return inside;
+  }
+
 }

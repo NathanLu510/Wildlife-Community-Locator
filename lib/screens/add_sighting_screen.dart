@@ -1,19 +1,27 @@
 // Add sighting screen form for users to fill in details of their animal sighting
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../models/species.dart';
+import '../models/sighting.dart';
+
 import '../data/sample_species.dart';
 import '../utils/category_style.dart';
-
-import 'package:latlong2/latlong.dart';
 import '../screens/location_picker.dart';
 
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
+
 
 
 class AddSightingScreen extends StatefulWidget {
-  const AddSightingScreen({super.key});
+
+  final ValueChanged<Sighting> onSightingAdded;
+  
+  const AddSightingScreen({
+    super.key,
+    required this.onSightingAdded,
+    });
 
   @override
   State<AddSightingScreen> createState() => _AddSightingScreenState();
